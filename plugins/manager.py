@@ -1,4 +1,6 @@
 import re
+import shutil
+import os
 
 
 class Manager:
@@ -33,36 +35,41 @@ class Manager:
     def select_bangumi(self):
         number = 0
         for bangumi in self.bangumi_list:
-            print(f'{number}.{bangumi[2:]}\t')
+            print(f'{number}.{bangumi}\t')
             number += 1
         selected_ID = input('选择番剧:')
         if selected_ID:
-            self.bangumi = self.bangumi_list[int(selected_ID)][2:]
+            self.bangumi = self.bangumi_list[int(selected_ID)]
         else:
             exit()
 
     def read(self):
         with open('README.md', 'r', encoding='utf-8') as f:
             text = f.read()
-        pattern = re.compile(r'\+\s.+')
+        pattern = re.compile(r'(?<=\+\s\[).+(?=\])')
         self.bangumi_list = pattern.findall(text)
         print(self.bangumi_list)
 
     def add(self, bangumi: str):
-        bangumi = f'+ {bangumi}'
-        self.bangumi_list.append(bangumi)
+        self.bangumi_list.append(bangumi.replace(' ', ''))
         self.commit()
 
     def remove(self, bangumi: str):
-        bangumi = f'+ {bangumi}'
         if not bangumi in self.bangumi_list:
             print('不存在')
             return None
         self.bangumi_list.remove(bangumi)
+        note_path = os.path.join('note', bangumi)
+        if os.path.exists(note_path):
+            shutil.rmtree(note_path)
         self.commit()
 
     def commit(self):
+        bangumi_list = [
+            f'+ [{bangumi}](note/{bangumi}/main.md)'
+            for bangumi in self.bangumi_list
+        ]
         text = '# 目录\n'
-        text += '\n'.join(self.bangumi_list)
+        text += '\n'.join(bangumi_list)
         with open('README.md', 'w', encoding='utf-8') as f:
             f.write(text)
