@@ -1,5 +1,4 @@
 import re
-import shutil
 import os
 
 
@@ -53,20 +52,27 @@ class Manager:
     def add(self, bangumi: str):
         self.bangumi_list.append(bangumi.replace(' ', ''))
         self.commit()
+        with open(f'note/{bangumi}.md', 'w') as f:
+            f.write(f'#{bangumi}')
 
     def remove(self, bangumi: str):
         if not bangumi in self.bangumi_list:
             print('不存在')
             return None
         self.bangumi_list.remove(bangumi)
-        note_path = os.path.join('note', bangumi)
-        if os.path.exists(note_path):
-            shutil.rmtree(note_path)
         self.commit()
+        note_path = os.path.join('note', f'{bangumi}.md')
+        if os.path.exists(note_path):
+            os.remove(note_path)
+        image_root = os.path.join('note', 'image')
+        pattern = re.compile(f'{bangumi}.+')
+        for image in os.listdir(image_root):
+            if pattern.match(image):
+                os.remove(os.path.join(image_root, image))
 
     def commit(self):
         bangumi_list = [
-            f'+ [{bangumi}](note/{bangumi}/main.md)'
+            f'+ [{bangumi}](note/{bangumi}.md)'
             for bangumi in self.bangumi_list
         ]
         text = '# 目录\n'
