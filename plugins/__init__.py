@@ -6,7 +6,7 @@ import keyboard
 def screenshot(bangumi: str):
     handler = Screenshot(bangumi)
     keyboard.on_press(handler.on_key)
-    keyboard.wait()
+    keyboard.wait('esc')
 
 
 def manager() -> str:
