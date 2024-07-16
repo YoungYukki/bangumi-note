@@ -50,10 +50,11 @@ class Manager:
         print(self.bangumi_list)
 
     def add(self, bangumi: str):
-        self.bangumi_list.append(bangumi.replace(' ', ''))
+        bangumi = bangumi.replace(' ', '_')
+        self.bangumi_list.append(bangumi)
         self.commit()
         with open(f'note/{bangumi}.md', 'w') as f:
-            f.write(f'#{bangumi}')
+            f.write(f'# {bangumi}')
 
     def remove(self, bangumi: str):
         if not bangumi in self.bangumi_list:
